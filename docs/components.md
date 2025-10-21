@@ -1,7 +1,6 @@
 
 ## ⚙️ `docs/components.md`
 
-```markdown
 # 🔍 Component Breakdown
 
 | Component | File | Class | Description | Key Concepts |
@@ -26,4 +25,3 @@
 - Simple `Queue` synchronization using Ruby’s `Queue` class.
 - Artificial delay using `sleep(0.5)` to mimic I/O latency.
 - SQLite DB ensures persisted logs for verification.
-````
