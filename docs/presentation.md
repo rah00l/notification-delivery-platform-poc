@@ -1,4 +1,3 @@
-## 💬 `docs/presentation.md`
 
 # 📈 Functional & Concept Presentation
 
