@@ -95,7 +95,7 @@ notification-delivery-poc/
 * [Detailed Components](./docs/components.md)
 * [Test & Demo Scenarios](./docs/scenarios.md)
 * [Design Trade-offs](./docs/tradeoffs.md)
-* [Functional Walkthrough](./presentation.md)
+* [Functional Walkthrough](./docs/presentation.md)
 
 --- 
 
