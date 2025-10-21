@@ -16,6 +16,16 @@ This is a simplified simulator version of the Notification Delivery Platform, bu
 
 ---
 
+## 🧠 Concept Demonstrated
+- Message Queueing
+- Worker Pooling & Thread Management
+- Asynchronous Job Processing
+- Logging & Persistence
+- Fault Handling Simulation
+
+---
+
+
 ## Dependencies
 
 - Ruby >= 3.2
@@ -57,6 +67,28 @@ docker run -it notification_poc
 
 ---
 
+# 🗂️ Folder Structure
+
+```
+notification-delivery-poc/
+│
+├── README.md
+├── main.rb
+├── producer.rb
+├── worker_pool.rb
+├── dispatcher.rb
+├── logger_service.rb
+├── queue_simulator.rb
+├── input/
+│   └── orders.json
+└── docs/
+    ├── architecture.md
+    ├── components.md
+    ├── scenarios.md
+    ├── tradeoffs.md
+    └── presentation.md
+```
+
 ## Notes
 
 * Input orders can be modified in `input/orders.json`.
@@ -70,3 +102,39 @@ docker run -it notification_poc
   * Observing logs via SQLite
 
 ---
+
+## 📚 Further Reading
+
+* [Architecture Overview](./docs/architecture.md)
+* [Detailed Components](./docs/components.md)
+* [Test & Demo Scenarios](./docs/scenarios.md)
+* [Design Trade-offs](./docs/tradeoffs.md)
+* [Functional Walkthrough (CEO)](./dpresentation.md)
+
+--- 
+
+---
+
+## 🧠 Concept Mapping
+
+| Concept         | Implementation       | Purpose                                |
+| --------------- | -------------------- | -------------------------------------- |
+| **Producer**    | `producer.rb`        | Simulates event producers pushing jobs |
+| **Queue**       | `queue_simulator.rb` | Holds jobs like Kafka/Redis            |
+| **Worker Pool** | `worker_pool.rb`     | Concurrent job execution               |
+| **Dispatcher**  | `dispatcher.rb`      | Simulates email/SMS API call           |
+| **Logger**      | `logger_service.rb`  | Persists success/failure results       |
+| **SQLite**      | `logger_service.rb`  | Lightweight persistence layer          |
+
+---
+
+## 🔄 Data Flow
+
+1. `producer.rb` reads `orders.json` and pushes jobs to queue.
+2. `worker_pool.rb` spins up N threads.
+3. Each worker pops a job and hands it to `dispatcher.rb`.
+4. `dispatcher.rb` simulates API send and returns result.
+5. `logger_service.rb` stores job + result to SQLite.
+6. Once all jobs processed, workers gracefully stop.
+
+--- 
