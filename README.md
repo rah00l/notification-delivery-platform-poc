@@ -89,31 +89,15 @@ notification-delivery-poc/
     └── presentation.md
 ```
 
-## Notes
-
-* Input orders can be modified in `input/orders.json`.
-* Worker pool concurrency, dispatch delays, and simulated delivery failures can be tweaked in the respective classes for testing concepts.
-* This POC focuses on demonstrating:
-
-  * Multi-threaded processing
-  * Queue-based decoupling
-  * Dispatcher simulation
-  * Thread-safe logging
-  * Observing logs via SQLite
-
----
-
 ## 📚 Further Reading
 
 * [Architecture Overview](./docs/architecture.md)
 * [Detailed Components](./docs/components.md)
 * [Test & Demo Scenarios](./docs/scenarios.md)
 * [Design Trade-offs](./docs/tradeoffs.md)
-* [Functional Walkthrough (CEO)](./dpresentation.md)
+* [Functional Walkthrough](./presentation.md)
 
 --- 
-
----
 
 ## 🧠 Concept Mapping
 
@@ -137,4 +121,18 @@ notification-delivery-poc/
 5. `logger_service.rb` stores job + result to SQLite.
 6. Once all jobs processed, workers gracefully stop.
 
---- 
+---
+
+## Notes
+
+* Input orders can be modified in `input/orders.json`.
+* Worker pool concurrency, dispatch delays, and simulated delivery failures can be tweaked in the respective classes for testing concepts.
+* This POC focuses on demonstrating:
+
+  * Multi-threaded processing
+  * Queue-based decoupling
+  * Dispatcher simulation
+  * Thread-safe logging
+  * Observing logs via SQLite
+
+---
