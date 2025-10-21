@@ -1,10 +1,3 @@
-````
-
----
-
-## ⚖️ `docs/tradeoffs.md`
-
-```markdown
 # ⚖️ Technical Trade-offs
 
 | Area | Current Choice | Reason | Future Option |
@@ -23,12 +16,9 @@
 - No retry or backoff mechanism
 - Single DB writer thread
 
----
 
 ## 🔮 Future Enhancements
 - Retry queues and dead-letter queues
 - Web dashboard for monitoring
 - Containerized scaling with Docker Compose
-````
-
----
+  
