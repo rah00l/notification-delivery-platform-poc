@@ -1,6 +1,5 @@
 ## 💬 `docs/presentation.md`
 
-```markdown
 # 📈 Functional & Concept Presentation
 
 ### 🎯 Purpose
@@ -30,6 +29,5 @@ Demonstrate how notifications move through a simplified delivery system — from
 2. Run `ruby main.rb`.
 3. Display console logs (workers processing).
 4. Query `sqlite3` DB to show results.
-```
 
 ---
