@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  notification_poc:
+    build: .
+    container_name: notification_poc
+    volumes:
+      - .:/app
+    command: ruby main.rb

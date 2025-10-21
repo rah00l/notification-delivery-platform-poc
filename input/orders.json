@@ -1,0 +1,6 @@
+[
+  {"order_id": 1, "email": "alice@example.com", "message": "Order confirmed!"},
+  {"order_id": 2, "email": "bob@example.com", "message": "Your order has shipped!"},
+  {"order_id": 3, "email": "carol@example.com", "message": "Your package was delivered!"}
+]
+
