@@ -1,4 +1,3 @@
-````markdown
 # Notification Delivery Platform (Ruby POC)
 
 This is a simplified simulator version of the Notification Delivery Platform, built to explore core concepts like multi-threading, worker pools, queue processing, dispatching, and logging.
