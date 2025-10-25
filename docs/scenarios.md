@@ -7,6 +7,7 @@ This document summarizes the key **test scenarios** validating queueing, concurr
 ### ⚙️ 1. **Base Flow — End-to-End Functionality**
 
 **Goal:** Verify the complete flow: Producer → Queue → Worker → Dispatcher.
+
 **Concepts:** Message queue, threaded processing, delivery confirmation.
 
 **Input**
@@ -34,6 +35,7 @@ All orders processed.
 ### ⚡ 2. **Multi-Threading & Concurrency**
 
 **Goal:** Validate that multiple workers handle messages simultaneously.
+
 **Concepts:** Worker pool, thread-safe queue, parallel delivery.
 
 **Input**
@@ -60,6 +62,7 @@ All orders processed.
 ### ❌ 3. **Failure Handling**
 
 **Goal:** Confirm that one failed message doesn’t block others.
+
 **Concepts:** Fault tolerance, isolated thread execution.
 
 **Input**
@@ -86,6 +89,7 @@ All orders processed.
 ### 🔁 4. **Duplicate Orders**
 
 **Goal:** Ensure duplicate records are detected and skipped safely.
+
 **Concepts:** Idempotency, atomic operations, data consistency.
 
 **Input**
@@ -111,6 +115,7 @@ All orders processed.
 ### ⚠️ 5. **Invalid Data Handling**
 
 **Goal:** Gracefully handle missing or invalid email fields.
+
 **Concepts:** Validation, safe error recovery, resilient queue.
 
 **Input**
@@ -137,6 +142,7 @@ All orders processed.
 ### 🚀 6. **Scalability (High Load)**
 
 **Goal:** Stress-test worker pool with multiple orders.
+
 **Concepts:** Thread scheduling, queue depth, throughput.
 
 **Input**
