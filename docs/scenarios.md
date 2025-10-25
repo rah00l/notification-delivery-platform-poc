@@ -186,5 +186,3 @@ docker run -it notification_poc
 Logs are stored in `notifications.db` for validation of each run.
 
 ---
-
-Would you like me to rewrite this in a **Mailroom/Post Office storytelling analogy** (e.g., *“Each Mailman thread delivers letters concurrently, Post Office Queue handles incoming mail, etc.”*) — so you can include that in a presentation slide for leadership?
