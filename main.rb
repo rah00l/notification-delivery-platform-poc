@@ -19,7 +19,7 @@ worker_pool.start
 producer = Producer.new('input/orders.json', queue)
 producer.produce
 
-# Wait for all workers
-worker_pool.wait
+# Stop workers gracefully
+worker_pool.stop
 
 puts "\nAll orders processed. Check notifications.db for logs."

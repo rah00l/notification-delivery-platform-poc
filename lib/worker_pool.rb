@@ -8,21 +8,25 @@ class WorkerPool
   end
 
   def start
-    @size.times do |i|
-      @threads << Thread.new do
-        loop do
-          job = @queue.pop
-          break unless job
-          puts "[Worker #{i}] Processing order ##{job['order_id']}"
-          result = @dispatcher.deliver(job)
-          @logger.log(job, result)
-          sleep(0.5)
+      @size.times do |worker_id|
+        @threads << Thread.new(worker_id) do |id|
+          loop do
+            job = @queue.pop
+            break if job == :END
+
+            puts "[Worker #{id}] Processing order ##{job['order_id']}"
+            result = @dispatcher.deliver(job)
+            @logger.log(job, result)
+
+            sleep(rand(0.1..0.3)) # simulate processing
+            Thread.pass
+          end
         end
       end
     end
-  end
 
-  def wait
+  def stop
+    @size.times { @queue.push(:END) }
     @threads.each(&:join)
   end
 end
