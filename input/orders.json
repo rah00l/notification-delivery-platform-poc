@@ -1,6 +1,391 @@
+// 1. Base File: input.json
 [
   {"order_id": 1, "email": "alice@example.com", "message": "Order confirmed!"},
   {"order_id": 2, "email": "bob@example.com", "message": "Your order has shipped!"},
-  {"order_id": 3, "email": "carol@example.com", "message": "Your package was delivered!"}
+  {"order_id": 3, "email": "carol@example.com", "message": "Your package was delivered!"},
+  {"order_id": 4, "email": "dave@example.com", "message": "Order dispatched!"},
+  {"order_id": 5, "email": "eve@example.com", "message": "Order confirmed!"}
 ]
+
+// [Producer] Queuing order #1
+// [Worker 1] Processing order #1
+// [Dispatcher] Sending message to alice@example.com...
+// [Producer] Queuing order #2
+// [Worker 2] Processing order #2
+// [Dispatcher] Sending message to bob@example.com...
+// [Producer] Queuing order #3
+// [Worker 0] Processing order #3
+// [Dispatcher] Sending message to carol@example.com...
+// [Dispatcher] Failed delivery
+// [Dispatcher] Failed delivery
+// [Dispatcher] Failed delivery
+
+// All orders processed. Check notifications.db for logs.
+
+
+// 2. Scenario: Multiple Orders for Multi-Threading
+// [
+//   {"order_id": 1, "email": "alice@example.com", "message": "Order confirmed!"},
+//   {"order_id": 2, "email": "bob@example.com", "message": "Your order has shipped!"},
+//   {"order_id": 3, "email": "carol@example.com", "message": "Your package was delivered!"},
+//   {"order_id": 4, "email": "dave@example.com", "message": "Order dispatched!"},
+//   {"order_id": 5, "email": "eve@example.com", "message": "Order confirmed!"}
+// ]
+// Purpose: Test multi-threading, concurrency, and worker pool processing.
+// Concepts: Thread-safe queue, multi-threaded workers, concurrent dispatching.
+
+// [Producer] Queuing order #1
+// [Worker 0] Processing order #1
+// [Dispatcher] Sending message to alice@example.com...
+// [Producer] Queuing order #2
+// [Worker 1] Processing order #2
+// [Dispatcher] Sending message to bob@example.com...
+// [Producer] Queuing order #3
+// [Worker 2] Processing order #3
+// [Dispatcher] Sending message to carol@example.com...
+// [Producer] Queuing order #4
+// [Producer] Queuing order #5
+// [Dispatcher] Delivered to carol@example.com
+// [Dispatcher] Delivered to alice@example.com
+// [Dispatcher] Failed delivery
+// [Worker 0] Processing order #4
+// [Dispatcher] Sending message to dave@example.com...
+// [Worker 2] Processing order #5
+// [Dispatcher] Sending message to eve@example.com...
+// [Dispatcher] Failed delivery
+// [Dispatcher] Delivered to eve@example.com
+
+// All orders processed. Check notifications.db for logs.
+
+// 3. Scenario: Delivery Failures
+// [
+//   {"order_id": 1, "email": "alice@example.com", "message": "Order confirmed!"},
+//   {"order_id": 2, "email": "bob@example.com", "message": "Your order has shipped!", "fail": true},
+//   {"order_id": 3, "email": "carol@example.com", "message": "Your package was delivered!"}
+// ]
+// Purpose: Test error handling and reliability.
+// Concepts: Thread safety during failure, retry mechanism (if implemented), consistent logging.
+
+// [Producer] Queuing order #1
+// [Worker 1] Processing order #1
+// [Dispatcher] Sending message to alice@example.com...
+// [Producer] Queuing order #2
+// [Worker 2] Processing order #2
+// [Dispatcher] Sending message to bob@example.com...
+// [Producer] Queuing order #3
+// [Worker 0] Processing order #3
+// [Dispatcher] Sending message to carol@example.com...
+// [Dispatcher] Failed delivery
+// [Dispatcher] Failed delivery
+// [Dispatcher] Failed delivery
+
+// All orders processed. Check notifications.db for logs.
+
+// 4. Scenario: Deduplication
+// [
+//   {"order_id": 1, "email": "alice@example.com", "message": "Order confirmed!"},
+//   {"order_id": 1, "email": "alice@example.com", "message": "Order confirmed!"}
+// ]
+// Purpose: Demonstrates data safety, atomic operations, and deduplication.
+
+// docker run -it notification_poc
+// [Producer] Queuing order #1
+// [Worker 1] Processing order #1
+// [Dispatcher] Sending message to alice@example.com...
+// [Producer] Queuing order #1
+// [Worker 0] Processing order #1
+// [Dispatcher] Sending message to alice@example.com...
+// [Dispatcher] Failed delivery
+// [Dispatcher] Delivered to alice@example.com
+
+// All orders processed. Check notifications.db for logs.
+
+// 5. Scenario: Invalid Inputs
+// [
+//   {"order_id": 1, "email": "alice@example.com", "message": "Order confirmed!"},
+//   {"order_id": 2, "email": "", "message": "Your order has shipped!"},
+//   {"order_id": 3, "email": "invalid-email", "message": "Your package was delivered!"}
+// ]
+// Purpose: Dispatcher/worker handles invalid/missing emails without crashing other threads.
+// Concepts: Thread safety, error handling, resilience.
+
+// [Producer] Queuing order #1
+// [Worker 1] Processing order #1
+// [Dispatcher] Sending message to alice@example.com...
+// [Producer] Queuing order #2
+// [Worker 2] Processing order #2
+// [Dispatcher] Sending message to ...
+// [Producer] Queuing order #3
+// [Worker 0] Processing order #3
+// [Dispatcher] Sending message to invalid-email...
+// [Dispatcher] Delivered to 
+// [Dispatcher] Delivered to invalid-email
+// [Dispatcher] Failed delivery
+
+// All orders processed. Check notifications.db for logs.
+
+
+// 6. Scenario: High Throughput / Scalability
+// [
+//   {"order_id": 1, "email": "user1@example.com", "message": "Order update #1"},
+//   {"order_id": 2, "email": "user2@example.com", "message": "Order update #2"},
+//   {"order_id": 3, "email": "user3@example.com", "message": "Order update #3"},
+//   {"order_id": 4, "email": "user4@example.com", "message": "Order update #4"},
+//   {"order_id": 5, "email": "user5@example.com", "message": "Order update #5"},
+//   {"order_id": 6, "email": "user6@example.com", "message": "Order update #6"},
+//   {"order_id": 7, "email": "user7@example.com", "message": "Order update #7"},
+//   {"order_id": 8, "email": "user8@example.com", "message": "Order update #8"},
+//   {"order_id": 9, "email": "user9@example.com", "message": "Order update #9"},
+//   {"order_id": 10, "email": "user10@example.com", "message": "Order update #10"},
+//   {"order_id": 11, "email": "user11@example.com", "message": "Order update #11"},
+//   {"order_id": 12, "email": "user12@example.com", "message": "Order update #12"},
+//   {"order_id": 13, "email": "user13@example.com", "message": "Order update #13"},
+//   {"order_id": 14, "email": "user14@example.com", "message": "Order update #14"},
+//   {"order_id": 15, "email": "user15@example.com", "message": "Order update #15"},
+//   {"order_id": 16, "email": "user16@example.com", "message": "Order update #16"},
+//   {"order_id": 17, "email": "user17@example.com", "message": "Order update #17"},
+//   {"order_id": 18, "email": "user18@example.com", "message": "Order update #18"},
+//   {"order_id": 19, "email": "user19@example.com", "message": "Order update #19"},
+//   {"order_id": 20, "email": "user20@example.com", "message": "Order update #20"},
+//   {"order_id": 21, "email": "user21@example.com", "message": "Order update #21"},
+//   {"order_id": 22, "email": "user22@example.com", "message": "Order update #22"},
+//   {"order_id": 23, "email": "user23@example.com", "message": "Order update #23"},
+//   {"order_id": 24, "email": "user24@example.com", "message": "Order update #24"},
+//   {"order_id": 25, "email": "user25@example.com", "message": "Order update #25"},
+//   {"order_id": 26, "email": "user26@example.com", "message": "Order update #26"},
+//   {"order_id": 27, "email": "user27@example.com", "message": "Order update #27"},
+//   {"order_id": 28, "email": "user28@example.com", "message": "Order update #28"},
+//   {"order_id": 29, "email": "user29@example.com", "message": "Order update #29"},
+//   {"order_id": 30, "email": "user30@example.com", "message": "Order update #30"},
+//   {"order_id": 31, "email": "user31@example.com", "message": "Order update #31"},
+//   {"order_id": 32, "email": "user32@example.com", "message": "Order update #32"},
+//   {"order_id": 33, "email": "user33@example.com", "message": "Order update #33"},
+//   {"order_id": 34, "email": "user34@example.com", "message": "Order update #34"},
+//   {"order_id": 35, "email": "user35@example.com", "message": "Order update #35"},
+//   {"order_id": 36, "email": "user36@example.com", "message": "Order update #36"},
+//   {"order_id": 37, "email": "user37@example.com", "message": "Order update #37"},
+//   {"order_id": 38, "email": "user38@example.com", "message": "Order update #38"},
+//   {"order_id": 39, "email": "user39@example.com", "message": "Order update #39"},
+//   {"order_id": 40, "email": "user40@example.com", "message": "Order update #40"},
+//   {"order_id": 41, "email": "user41@example.com", "message": "Order update #41"},
+//   {"order_id": 42, "email": "user42@example.com", "message": "Order update #42"},
+//   {"order_id": 43, "email": "user43@example.com", "message": "Order update #43"},
+//   {"order_id": 44, "email": "user44@example.com", "message": "Order update #44"},
+//   {"order_id": 45, "email": "user45@example.com", "message": "Order update #45"},
+//   {"order_id": 46, "email": "user46@example.com", "message": "Order update #46"},
+//   {"order_id": 47, "email": "user47@example.com", "message": "Order update #47"},
+//   {"order_id": 48, "email": "user48@example.com", "message": "Order update #48"},
+//   {"order_id": 49, "email": "user49@example.com", "message": "Order update #49"},
+//   {"order_id": 50, "email": "user50@example.com", "message": "Order update #50"}
+// ]
+// Purpose: Test worker pool, queue backpressure, multi-threaded dispatching, observe CLI stats.
+// Concepts: Scalability, thread-pool efficiency, monitoring.
+
+// docker run -it notification_poc
+// [Producer] Queuing order #1
+// [Worker 1] Processing order #1
+// [Dispatcher] Sending message to user1@example.com...
+// [Producer] Queuing order #2
+// [Worker 0] Processing order #2
+// [Dispatcher] Sending message to user2@example.com...
+// [Dispatcher] Delivered to user1@example.com
+// [Producer] Queuing order #3
+// [Worker 2] Processing order #3
+// [Dispatcher] Sending message to user3@example.com...
+// [Producer] Queuing order #4
+// [Worker 1] Processing order #4
+// [Dispatcher] Sending message to user4@example.com...
+// [Producer] Queuing order #5
+// [Dispatcher] Delivered to user3@example.com
+// [Producer] Queuing order #6
+// [Worker 2] Processing order #5
+// [Dispatcher] Sending message to user5@example.com...
+// [Dispatcher] Delivered to user2@example.com
+// [Producer] Queuing order #7
+// [Dispatcher] Failed delivery
+// [Worker 0] Processing order #6
+// [Dispatcher] Sending message to user6@example.com...
+// [Worker 1] Processing order #7
+// [Dispatcher] Sending message to user7@example.com...
+// [Producer] Queuing order #8
+// [Dispatcher] Delivered to user5@example.com
+// [Producer] Queuing order #9
+// [Worker 2] Processing order #8
+// [Dispatcher] Sending message to user8@example.com...
+// [Producer] Queuing order #10
+// [Dispatcher] Delivered to user7@example.com
+// [Producer] Queuing order #11
+// [Dispatcher] Failed delivery
+// [Worker 0] Processing order #9
+// [Dispatcher] Sending message to user9@example.com...
+// [Producer] Queuing order #12
+// [Worker 1] Processing order #10
+// [Dispatcher] Sending message to user10@example.com...
+// [Dispatcher] Delivered to user8@example.com
+// [Producer] Queuing order #13
+// [Producer] Queuing order #14
+// [Worker 2] Processing order #11
+// [Dispatcher] Sending message to user11@example.com...
+// [Dispatcher] Failed delivery
+// [Producer] Queuing order #15
+// [Dispatcher] Failed delivery
+// [Worker 0] Processing order #12
+// [Dispatcher] Sending message to user12@example.com...
+// [Producer] Queuing order #16
+// [Dispatcher] Delivered to user11@example.com
+// [Worker 1] Processing order #13
+// [Dispatcher] Sending message to user13@example.com...
+// [Producer] Queuing order #17
+// [Dispatcher] Failed delivery
+// [Worker 2] Processing order #14
+// [Dispatcher] Sending message to user14@example.com...
+// [Producer] Queuing order #18
+// [Worker 0] Processing order #15
+// [Dispatcher] Sending message to user15@example.com...
+// [Producer] Queuing order #19
+// [Dispatcher] Delivered to user14@example.com
+// [Dispatcher] Delivered to user15@example.com
+// [Worker 2] Processing order #16
+// [Dispatcher] Sending message to user16@example.com...
+// [Producer] Queuing order #20
+// [Worker 0] Processing order #17
+// [Dispatcher] Sending message to user17@example.com...
+// [Dispatcher] Delivered to user13@example.com
+// [Producer] Queuing order #21
+// [Worker 1] Processing order #18
+// [Dispatcher] Sending message to user18@example.com...
+// [Producer] Queuing order #22
+// [Producer] Queuing order #23
+// [Dispatcher] Failed delivery
+// [Producer] Queuing order #24
+// [Worker 2] Processing order #19
+// [Dispatcher] Sending message to user19@example.com...
+// [Producer] Queuing order #25
+// [Dispatcher] Delivered to user17@example.com
+// [Dispatcher] Delivered to user18@example.com
+// [Producer] Queuing order #26
+// [Worker 0] Processing order #20
+// [Dispatcher] Sending message to user20@example.com...
+// [Worker 1] Processing order #21
+// [Dispatcher] Sending message to user21@example.com...
+// [Producer] Queuing order #27
+// [Producer] Queuing order #28
+// [Dispatcher] Failed delivery
+// [Dispatcher] Delivered to user19@example.com
+// [Producer] Queuing order #29
+// [Worker 2] Processing order #22
+// [Dispatcher] Sending message to user22@example.com...
+// [Worker 1] Processing order #23
+// [Dispatcher] Sending message to user23@example.com...
+// [Producer] Queuing order #30
+// [Producer] Queuing order #31
+// [Dispatcher] Failed delivery
+// [Producer] Queuing order #32
+// [Worker 0] Processing order #24
+// [Dispatcher] Sending message to user24@example.com...
+// [Dispatcher] Delivered to user22@example.com
+// [Producer] Queuing order #33
+// [Worker 2] Processing order #25
+// [Dispatcher] Sending message to user25@example.com...
+// [Dispatcher] Delivered to user23@example.com
+// [Producer] Queuing order #34
+// [Worker 1] Processing order #26
+// [Dispatcher] Sending message to user26@example.com...
+// [Producer] Queuing order #35
+// [Dispatcher] Failed delivery
+// [Producer] Queuing order #36
+// [Worker 0] Processing order #27
+// [Dispatcher] Sending message to user27@example.com...
+// [Producer] Queuing order #37
+// [Producer] Queuing order #38
+// [Dispatcher] Failed delivery
+// [Dispatcher] Delivered to user26@example.com
+// [Producer] Queuing order #39
+// [Worker 1] Processing order #28
+// [Dispatcher] Sending message to user28@example.com...
+// [Worker 2] Processing order #29
+// [Dispatcher] Sending message to user29@example.com...
+// [Producer] Queuing order #40
+// [Dispatcher] Delivered to user27@example.com
+// [Dispatcher] Delivered to user28@example.com
+// [Producer] Queuing order #41
+// [Worker 0] Processing order #30
+// [Dispatcher] Sending message to user30@example.com...
+// [Producer] Queuing order #42
+// [Worker 1] Processing order #31
+// [Dispatcher] Sending message to user31@example.com...
+// [Producer] Queuing order #43
+// [Dispatcher] Delivered to user29@example.com
+// [Dispatcher] Failed delivery
+// [Producer] Queuing order #44
+// [Dispatcher] Delivered to user30@example.com
+// [Producer] Queuing order #45
+// [Worker 1] Processing order #32
+// [Dispatcher] Sending message to user32@example.com...
+// [Worker 2] Processing order #33
+// [Dispatcher] Sending message to user33@example.com...
+// [Producer] Queuing order #46
+// [Worker 0] Processing order #34
+// [Dispatcher] Sending message to user34@example.com...
+// [Producer] Queuing order #47
+// [Dispatcher] Delivered to user33@example.com
+// [Producer] Queuing order #48
+// [Worker 2] Processing order #35
+// [Dispatcher] Sending message to user35@example.com...
+// [Producer] Queuing order #49
+// [Dispatcher] Delivered to user32@example.com
+// [Producer] Queuing order #50
+// [Dispatcher] Delivered to user34@example.com
+// [Worker 1] Processing order #36
+// [Dispatcher] Sending message to user36@example.com...
+// [Worker 0] Processing order #37
+// [Dispatcher] Sending message to user37@example.com...
+// [Dispatcher] Failed delivery
+// [Dispatcher] Delivered to user35@example.com
+// [Worker 1] Processing order #38
+// [Dispatcher] Sending message to user38@example.com...
+// [Worker 2] Processing order #39
+// [Dispatcher] Sending message to user39@example.com...
+// [Dispatcher] Delivered to user37@example.com
+// [Worker 0] Processing order #40
+// [Dispatcher] Sending message to user40@example.com...
+// [Dispatcher] Failed delivery
+// [Dispatcher] Delivered to user38@example.com
+// [Worker 2] Processing order #41
+// [Dispatcher] Sending message to user41@example.com...
+// [Dispatcher] Delivered to user40@example.com
+// [Worker 1] Processing order #42
+// [Dispatcher] Sending message to user42@example.com...
+// [Worker 0] Processing order #43
+// [Dispatcher] Sending message to user43@example.com...
+// [Dispatcher] Delivered to user41@example.com
+// [Worker 2] Processing order #44
+// [Dispatcher] Sending message to user44@example.com...
+// [Dispatcher] Failed delivery
+// [Dispatcher] Failed delivery
+// [Worker 0] Processing order #45
+// [Dispatcher] Sending message to user45@example.com...
+// [Dispatcher] Delivered to user44@example.com
+// [Worker 1] Processing order #46
+// [Dispatcher] Sending message to user46@example.com...
+// [Worker 2] Processing order #47
+// [Dispatcher] Sending message to user47@example.com...
+// [Dispatcher] Delivered to user45@example.com
+// [Dispatcher] Failed delivery
+// [Worker 0] Processing order #48
+// [Dispatcher] Sending message to user48@example.com...
+// [Worker 1] Processing order #49
+// [Dispatcher] Sending message to user49@example.com...
+// [Dispatcher] Delivered to user47@example.com
+// [Worker 2] Processing order #50
+// [Dispatcher] Sending message to user50@example.com...
+// [Dispatcher] Delivered to user49@example.com
+// [Dispatcher] Delivered to user48@example.com
+// [Dispatcher] Delivered to user50@example.com
+
+// All orders processed. Check notifications.db for logs.
+
+
+
+
 
