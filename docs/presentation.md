@@ -57,6 +57,7 @@ Think of this system as a **digital Post Office**:
 ### ⚡ 2. **Multi-Mailman Concurrency**
 
 **Goal:** Show that multiple mailmen can deliver letters *at the same time*.
+
 **Concept:** Thread-safe queue, worker pool, concurrent dispatch.
 
 **Input**
@@ -85,6 +86,7 @@ Think of this system as a **digital Post Office**:
 ### ❌ 3. **Failed Deliveries — Address Not Found**
 
 **Goal:** Ensure one failed letter doesn’t halt the others.
+
 **Concept:** Fault isolation, resilience, retry scope.
 
 **Input**
@@ -111,6 +113,7 @@ Think of this system as a **digital Post Office**:
 ### 🔁 4. **Duplicate Letters — Same Envelope Twice**
 
 **Goal:** Prevent the same letter from being sent twice.
+
 **Concept:** Idempotency, data safety.
 
 **Input**
@@ -136,6 +139,7 @@ Think of this system as a **digital Post Office**:
 ### ⚠️ 5. **Invalid Addresses — Bad or Missing Data**
 
 **Goal:** Handle invalid or blank addresses gracefully.
+
 **Concept:** Validation and safe error recovery.
 
 **Input**
@@ -163,6 +167,7 @@ Think of this system as a **digital Post Office**:
 ### 🚀 6. **High Volume Mailbag — 50 Letters at Once**
 
 **Goal:** Test how the post office handles bulk dispatches.
+
 **Concept:** Load distribution, queue backpressure, thread scheduling.
 
 **Input**
